@@ -1,0 +1,6 @@
+JMH S 26 benchmarks.BenchmarkSerial S 73 benchmarks.jmh_generated.BenchmarkSerial_benchmarkCrossover1Ponto_jmhTest S 24 benchmarkCrossover1Ponto S 11 AverageTime E A 1 1 1 E E E E E E E E E E E E E E U 12 MILLISECONDS E E 
+JMH S 26 benchmarks.BenchmarkSerial S 74 benchmarks.jmh_generated.BenchmarkSerial_benchmarkExecutarCompleto_jmhTest S 25 benchmarkExecutarCompleto S 11 AverageTime E A 1 1 1 E E E E E E E E E E E E E E U 12 MILLISECONDS E E 
+JMH S 26 benchmarks.BenchmarkSerial S 65 benchmarks.jmh_generated.BenchmarkSerial_benchmarkFitness_jmhTest S 16 benchmarkFitness S 11 AverageTime E A 1 1 1 E E E E E E E E E E E E E E U 12 MILLISECONDS E E 
+JMH S 26 benchmarks.BenchmarkSerial S 72 benchmarks.jmh_generated.BenchmarkSerial_benchmarkGerarPopulacao_jmhTest S 23 benchmarkGerarPopulacao S 11 AverageTime E A 1 1 1 E E E E E E E E E E E E E E U 12 MILLISECONDS E E 
+JMH S 26 benchmarks.BenchmarkSerial S 65 benchmarks.jmh_generated.BenchmarkSerial_benchmarkMutacao_jmhTest S 16 benchmarkMutacao S 11 AverageTime E A 1 1 1 E E E E E E E E E E E E E E U 12 MILLISECONDS E E 
+JMH S 26 benchmarks.BenchmarkSerial S 72 benchmarks.jmh_generated.BenchmarkSerial_benchmarkSelecaoTorneio_jmhTest S 23 benchmarkSelecaoTorneio S 11 AverageTime E A 1 1 1 E E E E E E E E E E E E E E U 12 MILLISECONDS E E 

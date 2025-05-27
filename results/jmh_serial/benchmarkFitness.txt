@@ -1,0 +1,2 @@
+Benchmark                         Mode  Cnt    Score    Error  Units
+BenchmarkSerial.benchmarkFitness  avgt    5  382,522 ± 77,556  ms/op

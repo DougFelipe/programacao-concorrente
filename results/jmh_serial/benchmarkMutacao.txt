@@ -1,0 +1,2 @@
+Benchmark                         Mode  Cnt    Score    Error  Units
+BenchmarkSerial.benchmarkMutacao  avgt    5  736,275 ± 91,145  ms/op

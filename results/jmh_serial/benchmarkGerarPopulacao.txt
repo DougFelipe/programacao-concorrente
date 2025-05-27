@@ -1,0 +1,2 @@
+Benchmark                                Mode  Cnt      Score      Error  Units
+BenchmarkSerial.benchmarkGerarPopulacao  avgt    5  10145,219 ± 3512,359  ms/op

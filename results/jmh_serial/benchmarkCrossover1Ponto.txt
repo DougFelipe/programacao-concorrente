@@ -1,0 +1,2 @@
+Benchmark                                 Mode  Cnt    Score     Error  Units
+BenchmarkSerial.benchmarkCrossover1Ponto  avgt    5  712,196 ± 543,629  ms/op

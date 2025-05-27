@@ -1,0 +1,2 @@
+Benchmark                                Mode  Cnt    Score     Error  Units
+BenchmarkSerial.benchmarkSelecaoTorneio  avgt    5  827,198 ± 252,525  ms/op
