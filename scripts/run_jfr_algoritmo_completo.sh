@@ -28,18 +28,27 @@ mkdir -p "$JFR_DIR"
 # EXECUÇÃO PRINCIPAL
 # ========================
 for GC in "${GCS[@]}"; do
-  echo "🚀 Executando algoritmo completo com GC: $GC..."
+  echo -e "\n🚀 Executando algoritmo completo com GC: $GC..."
 
   JFR_FILE="$JFR_DIR/algoritmoCompleto_${GC}.jfr"
 
+  # Início da contagem de tempo
+  START_TIME=$(date +%s%N)
+
   java $JAVA_OPTS \
     -XX:+Use${GC} \
-    -XX:StartFlightRecording=filename=$JFR_FILE,duration=90s,settings=profile \
+    -XX:StartFlightRecording=filename=$JFR_FILE,settings=profile \
     -cp "target/$JAR_NAME" \
     $MAIN_CLASS "$DATASET_PATH" "$METHOD_NAME"
 
+  # Fim da contagem de tempo
+  END_TIME=$(date +%s%N)
+  DURATION_NS=$((END_TIME - START_TIME))
+  DURATION_S=$(awk "BEGIN {printf \"%.2f\", $DURATION_NS/1000000000}")
+
   if [ $? -eq 0 ]; then
     echo "✅ Execução concluída com $GC"
+    echo "⏱️ Tempo de execução com $GC: ${DURATION_S} segundos"
   else
     echo "⚠️ Erro na execução com $GC"
   fi

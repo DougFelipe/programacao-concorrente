@@ -44,7 +44,7 @@ for METHOD in "${METHODS[@]}"; do
 
     java $JAVA_OPTS \
       -XX:+Use${GC} \
-      -XX:StartFlightRecording=filename=$JFR_FILE,duration=60s,settings=profile \
+      -XX:StartFlightRecording=filename=$JFR_FILE,settings=profile \
       -cp "target/$JAR_NAME" \
       $MAIN_CLASS "$DATASET_PATH" "$METHOD"
 
