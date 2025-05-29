@@ -1,11 +1,10 @@
 package threads;
 
-import serial.utils.Biomarcador;
-import serial.utils.FitnessEvaluator;
+import threads.utils.Biomarcador;
+import threads.utils.FitnessEvaluator;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 public class ParallelGeneticAlgorithm {
 
@@ -15,17 +14,22 @@ public class ParallelGeneticAlgorithm {
     private final double taxaCrossover;
     private final double taxaMutacao;
 
-    private final ExecutorService pool = Executors.newFixedThreadPool(6);
+    private final ExecutorService pool;
 
-    private final List<BitSet> populacaoAtual = Collections.synchronizedList(new ArrayList<>());
-    private final List<BitSet> populacaoProxima = Collections.synchronizedList(new ArrayList<>());
+    private final List<BitSet> populacaoAtual;
+    private final List<BitSet> populacaoProxima;
 
-    public ParallelGeneticAlgorithm(List<Biomarcador> dados, int tamanhoPopulacao, int numGenerations, double taxaCrossover, double taxaMutacao) {
+    public ParallelGeneticAlgorithm(List<Biomarcador> dados, int tamanhoPopulacao, int numGenerations,
+                                    double taxaCrossover, double taxaMutacao) {
         this.dados = dados;
         this.tamanhoPopulacao = tamanhoPopulacao;
         this.numGenerations = numGenerations;
         this.taxaCrossover = taxaCrossover;
         this.taxaMutacao = taxaMutacao;
+
+        this.pool = Executors.newFixedThreadPool(6);
+        this.populacaoAtual = Collections.synchronizedList(new ArrayList<>());
+        this.populacaoProxima = Collections.synchronizedList(new ArrayList<>());
 
         gerarPopulacao(populacaoAtual);
     }
@@ -64,49 +68,80 @@ public class ParallelGeneticAlgorithm {
                 }
             }
 
-            // Swap
             synchronized (populacaoAtual) {
                 populacaoAtual.clear();
                 populacaoAtual.addAll(populacaoProxima);
             }
+
             populacaoProxima.clear();
         }
 
-        BitSet melhorClone = (melhorIndividuo != null) ? copy(melhorIndividuo) : null;
-        System.out.printf("Melhor fitness encontrado: %.2f\n", melhorFitness);
-
+        // Finaliza a pool apenas após a execução completa
         pool.shutdown();
+    }
+    
+    public void benchmarkGerarPopulacao() {
+        List<BitSet> nova = Collections.synchronizedList(new ArrayList<>());
+        gerarPopulacao(nova);
+    }
+
+    public void benchmarkSelecaoTorneio() {
+        selecaoTorneio(populacaoAtual);
+    }
+
+    public void benchmarkCrossover1Ponto() {
+        if (populacaoAtual.size() >= 2) {
+            BitSet p1 = populacaoAtual.get(0);
+            BitSet p2 = populacaoAtual.get(1);
+            crossover1Ponto(p1, p2);
+        }
+    }
+
+    public void benchmarkMutacao() {
+        if (!populacaoAtual.isEmpty()) {
+            BitSet clone = copy(populacaoAtual.get(0));
+            mutacao(clone);
+        }
+    }
+
+    public void benchmarkFitness() {
+        if (!populacaoAtual.isEmpty()) {
+            BitSet individuo = populacaoAtual.get(0);
+            FitnessEvaluator.avaliar(individuo, dados);
+        }
     }
 
     private void gerarPopulacao(List<BitSet> destino) {
-        List<Callable<List<BitSet>>> tarefas = new ArrayList<>();
+        List<Callable<Void>> tarefas = new ArrayList<>();
         int blocos = 6;
         int porBloco = tamanhoPopulacao / blocos;
         int sobra = tamanhoPopulacao % blocos;
 
         for (int i = 0; i < blocos; i++) {
-            int finalCount = porBloco + (i < sobra ? 1 : 0);
+            int count = porBloco + (i < sobra ? 1 : 0);
             tarefas.add(() -> {
-                List<BitSet> gerados = new ArrayList<>(finalCount);
+                List<BitSet> locais = new ArrayList<>(count);
                 int len = dados.size();
                 ThreadLocalRandom rnd = ThreadLocalRandom.current();
-                for (int j = 0; j < finalCount; j++) {
+                for (int j = 0; j < count; j++) {
                     BitSet b = new BitSet(len);
                     for (int k = 0; k < len; k++) {
                         if (rnd.nextBoolean()) b.set(k);
                     }
-                    synchronized (destino) {
-                        destino.add(b); // Para testes com JCStress
-                    }
+                    locais.add(b);
                 }
-                return gerados;
+                synchronized (destino) {
+                    destino.addAll(locais);
+                }
+                return null;
             });
         }
 
         try {
             pool.invokeAll(tarefas);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Erro ao gerar população paralelamente", e);
         }
     }
 
