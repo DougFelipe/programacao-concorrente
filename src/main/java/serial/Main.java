@@ -8,12 +8,13 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.err.println("Uso: java -Xmx16G -cp out serial.Main <caminho_dataset>");
+        if (args.length < 2) {
+            System.err.println("Uso: java -Xmx16G -cp out serial.Main <caminho_dataset> <nome_metodo>");
             System.exit(1);
         }
 
         String caminhoArquivo = args[0];
+        String metodo = args[1];
 
         // 🔧 Parâmetros do Algoritmo Genético
         int tamanhoPopulacao = 20;
@@ -28,7 +29,6 @@ public class Main {
             System.exit(2);
         }
 
-        // 🧬 Execução
         GeneticAlgorithm ga = new GeneticAlgorithm(
                 dados,
                 tamanhoPopulacao,
@@ -37,6 +37,29 @@ public class Main {
                 taxaMutacao
         );
 
-        ga.executar();  // Executa o algoritmo serial otimizado
+        // 🧪 Executa apenas o método solicitado
+        switch (metodo) {
+            case "benchmarkGerarPopulacao":
+                ga.benchmarkGerarPopulacao();
+                break;
+            case "benchmarkSelecaoTorneio":
+                ga.benchmarkSelecaoTorneio();
+                break;
+            case "benchmarkCrossover1Ponto":
+                ga.benchmarkCrossover1Ponto();
+                break;
+            case "benchmarkMutacao":
+                ga.benchmarkMutacao();
+                break;
+            case "benchmarkFitness":
+                ga.benchmarkFitness();
+                break;
+            case "executarAlgoritmoCompleto":
+                ga.executar(); // opcional se quiser chamar o completo
+                break;
+            default:
+                System.err.println("❌ Método não reconhecido: " + metodo);
+                System.exit(3);
+        }
     }
 }

@@ -21,7 +21,6 @@ public class GeneticAlgorithm {
     private final List<BitSet> populacaoAtual;
     private final List<BitSet> populacaoProxima;
 
-    // Reuso de objetos temporários para crossover
     private final BitSet temp1 = new BitSet();
     private final BitSet temp2 = new BitSet();
 
@@ -58,7 +57,7 @@ public class GeneticAlgorithm {
                     double fit = FitnessEvaluator.avaliar(filho, dados);
                     if (fit > melhorFitness) {
                         melhorFitness = fit;
-                        melhorIndividuo = filho;  // Evita clone/cópia aqui
+                        melhorIndividuo = filho;
                     }
 
                     populacaoProxima.add(filho);
@@ -73,7 +72,6 @@ public class GeneticAlgorithm {
             populacaoProxima.clear();
         }
 
-        // Só clona o melhor indivíduo uma vez, no final
         BitSet melhorClone = (melhorIndividuo != null) ? copy(melhorIndividuo) : null;
         System.out.printf("Melhor fitness encontrado: %.2f\n", melhorFitness);
     }
@@ -115,7 +113,7 @@ public class GeneticAlgorithm {
             }
         }
 
-        return new BitSet[]{copy(temp1), copy(temp2)}; // clone antes de retornar
+        return new BitSet[]{copy(temp1), copy(temp2)};
     }
 
     private void mutacao(BitSet cromossomo) {
@@ -128,5 +126,53 @@ public class GeneticAlgorithm {
 
     private BitSet copy(BitSet original) {
         return (BitSet) original.clone();
+    }
+
+    // ============================================
+    // 👇 MÉTODOS DE BENCHMARK INDIVIDUAL
+    // ============================================
+
+    public void benchmarkGerarPopulacao() {
+        List<BitSet> novaPopulacao = new ArrayList<>(tamanhoPopulacao);
+        long inicio = System.nanoTime();
+        gerarPopulacao(novaPopulacao);
+        long fim = System.nanoTime();
+        System.out.printf("Tempo gerarPopulacao(ns): %d\n", (fim - inicio));
+    }
+
+    public void benchmarkSelecaoTorneio() {
+        if (populacaoAtual.isEmpty()) gerarPopulacao(populacaoAtual);
+        long inicio = System.nanoTime();
+        BitSet s = selecaoTorneio(populacaoAtual);
+        long fim = System.nanoTime();
+        System.out.printf("Tempo selecaoTorneio(ns): %d\n", (fim - inicio));
+    }
+
+    public void benchmarkCrossover1Ponto() {
+        if (populacaoAtual.size() < 2) gerarPopulacao(populacaoAtual);
+        BitSet pai1 = populacaoAtual.get(0);
+        BitSet pai2 = populacaoAtual.get(1);
+        long inicio = System.nanoTime();
+        BitSet[] filhos = crossover1Ponto(pai1, pai2);
+        long fim = System.nanoTime();
+        System.out.printf("Tempo crossover1Ponto(ns): %d\n", (fim - inicio));
+    }
+
+    public void benchmarkMutacao() {
+        if (populacaoAtual.isEmpty()) gerarPopulacao(populacaoAtual);
+        BitSet cromo = copy(populacaoAtual.get(0));
+        long inicio = System.nanoTime();
+        mutacao(cromo);
+        long fim = System.nanoTime();
+        System.out.printf("Tempo mutacao(ns): %d\n", (fim - inicio));
+    }
+
+    public void benchmarkFitness() {
+        if (populacaoAtual.isEmpty()) gerarPopulacao(populacaoAtual);
+        BitSet cromo = populacaoAtual.get(0);
+        long inicio = System.nanoTime();
+        double fit = FitnessEvaluator.avaliar(cromo, dados);
+        long fim = System.nanoTime();
+        System.out.printf("Tempo avaliar fitness(ns): %d | Fitness: %.2f\n", (fim - inicio), fit);
     }
 }
